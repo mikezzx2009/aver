@@ -1,0 +1,29 @@
+[Unit]
+Description=Agent Cloud sandbox bridge and host firewall
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+Before=agent-cloud.service agent-cloud-worker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/opt/agent-cloud/deploy/network.sh
+ExecReload=/opt/agent-cloud/deploy/network.sh
+RemainAfterExit=yes
+TimeoutStartSec=90
+UMask=0077
+RuntimeDirectory=agent-cloud
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/run/agent-cloud
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+
+[Install]
+WantedBy=multi-user.target docker.service

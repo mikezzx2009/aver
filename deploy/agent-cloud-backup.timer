@@ -1,0 +1,13 @@
+[Unit]
+Description=Daily Agent Cloud persistent data backup
+
+[Timer]
+OnCalendar=*-*-* 03:15:00 Asia/Shanghai
+OnBootSec=15min
+Persistent=yes
+RandomizedDelaySec=5min
+AccuracySec=1min
+Unit=agent-cloud-backup.service
+
+[Install]
+WantedBy=timers.target

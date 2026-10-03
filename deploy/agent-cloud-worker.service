@@ -1,0 +1,40 @@
+[Unit]
+Description=Agent Cloud durable task worker
+Requires=agent-cloud-network.service agent-cloud.service
+After=network-online.target agent-cloud-network.service agent-cloud.service
+Wants=network-online.target
+PartOf=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/agent-cloud
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=AGENT_CLOUD_DATA=/srv/agent-cloud
+Environment=AGENT_CLOUD_CONFIG=/etc/agent-cloud/config.json
+Environment=DOCKER_CONFIG=/etc/agent-cloud/docker-client
+ExecStart=/opt/agent-cloud/.venv/bin/python /opt/agent-cloud/worker.py
+Restart=always
+RestartSec=3
+TimeoutStopSec=30
+# The worker supervises containers; SDK/agent processes are limited separately.
+MemoryAccounting=yes
+MemoryHigh=256M
+MemoryMax=384M
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/agent-cloud /run/agent-cloud
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

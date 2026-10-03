@@ -1,0 +1,34 @@
+[Unit]
+Description=Agent Cloud online database backup and workspace archive
+After=local-fs.target
+ConditionPathExists=/opt/agent-cloud/backup.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/agent-cloud
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=AGENT_CLOUD_DATA=/srv/agent-cloud
+Environment=AGENT_CLOUD_CONFIG=/etc/agent-cloud/config.json
+ExecStart=/opt/agent-cloud/.venv/bin/python /opt/agent-cloud/backup.py
+UMask=0077
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=2h
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+# Even mode=ro SQLite connections may need to create WAL/SHM sidecars when
+# idle writers closed their connections. Permit only the DB directory for this.
+ReadWritePaths=/srv/agent-cloud/backups /srv/agent-cloud/data
+ReadOnlyPaths=/srv/agent-cloud/data/workspaces
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+# backup.py must use SQLite's online backup API. A live file archive is not a
+# process/RAM snapshot and is not claimed to be an atomic multi-file checkpoint.

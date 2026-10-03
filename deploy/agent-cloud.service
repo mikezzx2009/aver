@@ -1,0 +1,50 @@
+[Unit]
+Description=Agent Cloud private web API and sandbox model proxy
+Requires=agent-cloud-network.service
+After=network-online.target agent-cloud-network.service
+Wants=network-online.target
+PartOf=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/agent-cloud
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=AGENT_CLOUD_DATA=/srv/agent-cloud
+Environment=AGENT_CLOUD_CONFIG=/etc/agent-cloud/config.json
+Environment=AGENT_CLOUD_HOST=127.0.0.1
+Environment=AGENT_CLOUD_PORT=8080
+Environment=AGENT_CLOUD_PROXY_HOST=172.29.0.1
+Environment=AGENT_CLOUD_PROXY_PORT=8090
+Environment=DOCKER_CONFIG=/etc/agent-cloud/docker-client
+ExecStart=/opt/agent-cloud/.venv/bin/python /opt/agent-cloud/server.py
+ExecStartPost=/opt/agent-cloud/.venv/bin/python /opt/agent-cloud/deploy/wait-ready.py
+TimeoutStartSec=60
+Restart=always
+RestartSec=3
+TimeoutStopSec=30
+# Bound HTTP/JSON/proxy buffers on the 2 GiB host. Tenant memory belongs to
+# Docker's own cgroups, so these limits do not replace the sandbox limit.
+MemoryAccounting=yes
+MemoryHigh=384M
+MemoryMax=512M
+UMask=0077
+RuntimeDirectory=agent-cloud
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/agent-cloud /etc/agent-cloud /run/agent-cloud
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

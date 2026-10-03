@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Install isolated Nginx test dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends nginx
+      - name: Run Python suite including Linux UID checks
+        # Privileges are confined to this disposable hosted runner. Tests use
+        # temporary directories; no installer, production host or model key.
+        run: sudo env PYTHONDONTWRITEBYTECODE=1 "$(command -v python)" -m unittest discover -s tests -v
+      - name: Check frontend syntax and behavior
+        run: |
+          node --check static/app.js
+          node tests/test_frontend_history.js
+      - name: Verify disposable web backup and restore
+        run: python tests/smoke_web.py --app-dir .

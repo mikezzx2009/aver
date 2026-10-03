@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Aver · 云端 Agent</title><meta name="description" content="Aver：专属工作空间、持续执行的任务和按对话整理的文件与记录。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="login" class="auth-screen">
+  <section class="auth-card">
+    <div class="brand"><span class="brand-symbol">A</span><strong>Aver</strong><span class="muted">云端 Agent</span></div>
+    <h1 id="auth-title">回到你的工作空间</h1><p id="auth-note" class="muted">文件与对话始终保留，任务在云端继续执行。</p>
+    <form id="auth-form">
+      <label>用户名<input id="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[a-zA-Z0-9_\-]+" placeholder="英文、数字或下划线"></label>
+      <label>密码<input id="password" type="password" autocomplete="current-password" required minlength="12" placeholder="至少 12 位"></label>
+      <label id="confirm-wrap" hidden>确认密码<input id="confirm-password" type="password" autocomplete="new-password" minlength="12"></label>
+      <p id="auth-error" role="alert" class="error" hidden></p>
+      <button class="primary" id="auth-submit" type="submit">登录</button>
+    </form>
+    <button id="auth-switch" class="link-button" hidden>创建账户</button>
+  </section>
+</div>
+<div id="app" class="app" hidden>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-symbol">A</span><strong>Aver</strong><span class="version">TEST</span></div>
+    <button id="new-chat" class="new-chat">＋ 新对话</button>
+    <div class="side-heading">对话</div><nav id="conversations" aria-label="对话列表"></nav>
+    <div class="account"><div><strong id="account-name"></strong><small>专属工作空间</small></div><button id="logout" class="icon-button" aria-label="退出登录">退出</button></div>
+  </aside>
+  <main class="main">
+    <header><div><h1 id="chat-title">新对话</h1><p class="header-note">离开网页，任务仍会继续</p></div><div class="header-actions"><button id="files-toggle" disabled title="发送第一条消息后，管理这个对话的文件">文件</button><button id="settings-toggle" hidden>设置</button></div></header>
+    <section id="server-stats" class="server-stats" aria-label="服务器实时状态">
+      <div class="server-metric"><span>CPU</span><strong id="stats-cpu">—</strong></div>
+      <div class="server-metric"><span>内存</span><strong id="stats-memory">—</strong><small id="stats-memory-size"></small></div>
+      <div class="server-metric"><span>磁盘</span><strong id="stats-disk">—</strong><small id="stats-disk-size"></small></div>
+      <div class="server-metric"><span>负载 1m</span><strong id="stats-load">—</strong></div>
+      <span id="stats-status" class="stats-note" role="status" hidden></span>
+    </section>
+    <div id="config-banner" class="banner" hidden>模型尚未配置。你可以先提交任务，配置完成后会继续执行。</div>
+    <section id="messages" class="messages" aria-label="对话内容">
+      <div class="empty-chat"><div class="empty-mark">A</div><h2>交给云端，随时回来</h2><p>描述你要完成的任务。文件按对话整理，过程和结果始终保留。</p><div class="suggestions"><button data-prompt="请检查当前工作空间和可用的 Python 环境，创建一个 hello.py 并运行它。">创建并运行一个 Python 文件</button><button data-prompt="请帮我整理一个项目计划，保存为当前对话里的 plan.md。">把项目计划保存成文件</button></div></div>
+    </section>
+    <form id="composer" class="composer"><label class="sr-only" for="prompt">描述任务</label><textarea id="prompt" rows="2" maxlength="32000" placeholder="告诉 Agent 你想完成什么…" required></textarea><div class="composer-footer"><span>Enter 发送 · Shift + Enter 换行</span><button class="primary" type="submit" id="send">发送任务</button></div><p id="send-error" class="error" role="alert" hidden></p></form>
+  </main>
+  <aside id="details" class="details" hidden><div class="panel-header"><h2 id="panel-title">当前对话文件</h2><button id="panel-close" class="icon-button" aria-label="关闭面板">关闭</button></div><div id="panel-content"></div></aside>
+</div>
+<div id="toast" role="status" hidden></div>
+<script src="/app.js" defer></script>
+</body></html>
